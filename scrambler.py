@@ -10,18 +10,25 @@ def final_time(input_start, input_stop):
     global stop
 
     finaltime = float(input_start)-float(input_stop)
-    finaltime = float(round(finaltime,3))
+    finaltime = float(round(finaltime,3) / -1)
     result = ""
-    result += (str(finaltime / -1))
+    result += (str(finaltime))
+    sessionTimes.append(finaltime)
+    print(sessionTimes)
 
     StopWatch.config(text = result)
     start = ""
     stop = ""
     scrambleDict["Time"] = result
-    if(sessionDictionary['Solves'] == "-"):
+    if(sessionDictionary['Best'] == '-'):
+        sessionDictionary['Best'] = result
+    if(sessionDictionary['Worst'] == '-'):
+        sessionDictionary['Worst'] = result
+    if(sessionDictionary['Solves'] == '-'):
         sessionDictionary['Solves'] = str(1)
     else:
         sessionDictionary['Solves'] = str(int(sessionDictionary['Solves']) + 1)
+    check_results(finaltime)
     update_scrambles()
     update_widgets() 
     set_scramble()
@@ -104,6 +111,20 @@ def session_dictionary():
                 sessionDictionary = row
     else:
         create_sessioncsv()
+#Initialize times list
+def initialize_times_list():
+    global sessionTimes
+    sessionTimes = [""]
+    if(os.path.isfile(os.path.join(os.path.dirname(__file__), 'Scrambles.csv')) == TRUE):
+        with open(os.path.join(os.path.dirname(__file__), 'Scrambles.csv'), mode='r', encoding='utf-8', newline='') as file:
+            csvFile = csv.DictReader(file, delimiter= ';')
+            for index, row in enumerate(csvFile):
+                print(index)
+                print(sessionTimes[0])
+                print(row["Time"])
+                sessionTimes[index] = row['Time']
+    else:
+        sessionTimes = []
 #Updates widgets
 def update_widgets():
     Solves.config(text = "Solves: " + sessionDictionary['Solves'])
@@ -130,12 +151,37 @@ def update_session():
         writer = csv.DictWriter(file, fieldnames = field_names, delimiter= ';')
         writer.writerow(sessionDictionary)
     window.destroy()
+#Check results
+def check_results(timeToCheck):
+    #Checks for the best time
+    if(float(sessionDictionary['Best']) > timeToCheck):
+        sessionDictionary['Best'] = str(timeToCheck)
+    #Checks for the worst time
+    if(float(sessionDictionary['Worst']) < timeToCheck):
+        sessionDictionary['Worst'] = str(timeToCheck)
+    calc_average()
+#Calculates the average
+def calc_average():
+    count = len(sessionTimes)
+    result = 0
+    print(len(sessionTimes))
+    for time in sessionTimes:
+        if((time == float(sessionDictionary['Best']) or time == float(sessionDictionary['Worst'])) and len(sessionTimes) > 3):
+            print("asd")
+            continue
+        result += time
+    print(result)
+    if(len(sessionTimes) > 3):
+        result = result / (len(sessionTimes) - 2)
+    print(len(sessionTimes) - 2)
+    print(result)
 
 window = tk.Tk()
 window.geometry("600x900")
 window.title("Cube scrambler")
 window.configure(background="#323232")
 session_dictionary()
+initialize_times_list()
 
 Scramble = tk.Label(text=get_scramble(),
          background="#323232",
