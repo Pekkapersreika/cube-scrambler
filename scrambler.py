@@ -87,7 +87,14 @@ def update_widgets():
     Ao12.config(text = "Ao12: " + sessionDictionary['Ao12'])
 #Updates Scrambles.csv
 def update_scrambles():
+    field_names = list(scrambleDict.keys())
     with open(os.path.join(os.path.dirname(__file__), 'Scrambles.csv'), mode='a', encoding='utf-8', newline='') as file:
+        writer = csv.DictWriter(file, fieldnames = field_names)
+        #writer.writerow([scrambleDict["Solve"], scrambleDict["Scramble"], scrambleDict["Time"]])
+        writer.writerow(scrambleDict)
+#On window close updates the session csv
+def update_session():
+    with open(os.path.join(os.path.dirname(__file__), 'Session.csv'), mode='a', encoding='utf-8', newline='') as file:
         writer = csv.writer(file, delimiter=';')
         writer.writerow([scrambleDict["Solve"], scrambleDict["Scramble"], scrambleDict["Time"]])
 
