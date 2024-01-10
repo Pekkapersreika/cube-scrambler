@@ -4,8 +4,7 @@ import random
 
 start = ""
 stop = ""
-running = "no"
-
+#Calculates the final time of the solve
 def final_time(input_start, input_stop):
     global start
     global stop
@@ -17,43 +16,24 @@ def final_time(input_start, input_stop):
     StopWatch.config(text = result)
     start = ""
     stop = ""
-    TestStart.config(text = "Start", command = lambda:start_time())
+    set_scramble()
+    window.bind("<space>", start_time)
 
-
-def start_time():
+#Starts the timer
+def start_time(event = None):
     global start
     global running
     import time
-    running = "yes"
     start = time.time()
     StopWatch.config(text = "Timing")
-    TestStart.config(text = "Stop", command = lambda:stop_time())
-
-def stop_time():
+    window.bind("<space>", stop_time)
+#Stops the timer
+def stop_time(event = None):
     global stop
     import time
-    running = "no"
     stop = time.time()
     final_time(start, stop)
-
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+#Gets the next scramble
 def get_scramble():
     scramble = ""
     movesList = ["U", "U'", "U2",
@@ -67,19 +47,15 @@ def get_scramble():
     for x in range(scrambleLength):
         scramble += random.choice(movesList) + " "
     return scramble
-
+#Sets the scramble to Scramble label
 def set_scramble():
     Scramble.config(text=get_scramble())
+
+
 window = tk.Tk()
 window.geometry("600x900")
 window.title("Cube scrambler")
 window.configure(background="#323232")
-#print(type(start()))
-
-TestScrambleButton = tk.Button(text="Scramble",
-                               command=lambda:set_scramble()).place(relx=0.5, rely=0.1, anchor="center")
-TestStart = tk.Button(text="Start",
-                               command=lambda:start_time())
 
 Scramble = tk.Label(text=get_scramble(),
          background="#323232",
@@ -132,6 +108,6 @@ Ao12 = tk.Label(text="Ao12:",
          foreground="#fff",
          font="Sagoe 15").place(relx=0.9, rely=0.9, anchor="ne")
 
+window.bind("<space>", start_time)
 StopWatch.place(relx=0.5, rely=0.5, anchor="center")
-TestStart.place(relx=0.45, rely=0.05, anchor="center")
 window.mainloop()
