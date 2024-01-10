@@ -4,10 +4,6 @@ import random
 import csv
 import os
 
-
-fakeCsv = []
-#start = ""
-#stop = ""
 #Calculates the final time of the solve
 def final_time(input_start, input_stop):
     global start
@@ -16,7 +12,7 @@ def final_time(input_start, input_stop):
     finaltime = float(input_start)-float(input_stop)
     finaltime = float(round(finaltime,3))
     result = ""
-    result += (str(finaltime))
+    result += (str(finaltime / -1))
 
     StopWatch.config(text = result)
     start = ""
@@ -26,7 +22,6 @@ def final_time(input_start, input_stop):
         sessionDictionary['Solves'] = str(1)
     else:
         sessionDictionary['Solves'] = str(int(sessionDictionary['Solves']) + 1)
-    #fakeCsv.append(scrambleDict)
     update_scrambles()
     update_widgets() 
     set_scramble()
@@ -63,13 +58,16 @@ def get_scramble():
 
     for x in range(scrambleLength):
         scramble += random.choice(movesList) + " "
-    scrambleDict["Solve"] = sessionDictionary["Solves"]
+    if(sessionDictionary["Solves"] == "-"):
+        scrambleDict["Solve"] = "1"
+    else:
+        scrambleDict["Solve"] = str(int(sessionDictionary["Solves"]) + 1)
     scrambleDict["Scramble"] = scramble
     return scramble
 #Sets the scramble to Scramble label
 def set_scramble():
     Scramble.config(text=get_scramble())
-#Create Session.csv
+#Create Session.csv if not found
 def create_sessioncsv():
     createSessionDict = {
             'Solves': '-',
@@ -87,7 +85,7 @@ def create_sessioncsv():
         writer.writeheader()
         writer.writerow(createSessionDict)
     session_dictionary()
-#Create Scrambles.csv
+#Create Scrambles.csv if not found
 def create_scramblecsv():
     field_names = ['Solve', 'Scramble', 'Time']
     with open(os.path.join(os.path.dirname(__file__), 'Scrambles.csv'), mode='w', encoding='utf-8', newline='') as file:
@@ -106,7 +104,6 @@ def session_dictionary():
                 sessionDictionary = row
     else:
         create_sessioncsv()
-
 #Updates widgets
 def update_widgets():
     Solves.config(text = "Solves: " + sessionDictionary['Solves'])
