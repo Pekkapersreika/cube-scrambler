@@ -4,8 +4,10 @@ import random
 import csv
 import os
 
-start = ""
-stop = ""
+
+fakeCsv = []
+#start = ""
+#stop = ""
 #Calculates the final time of the solve
 def final_time(input_start, input_stop):
     global start
@@ -19,11 +21,13 @@ def final_time(input_start, input_stop):
     StopWatch.config(text = result)
     start = ""
     stop = ""
+    scrambleDict["Time"] = result
     sessionDictionary['Solves'] = str(int(sessionDictionary['Solves']) + 1)
-    update_widgets()
+    #fakeCsv.append(scrambleDict)
+    update_scrambles()
+    update_widgets() 
     set_scramble()
     window.bind("<space>", start_time)
-
 #Starts the timer
 def start_time(event = None):
     global start
@@ -40,7 +44,12 @@ def stop_time(event = None):
     final_time(start, stop)
 #Gets the next scramble
 def get_scramble():
+    global scrambleDict
+    scrambleDict = {"Solve" : "",
+                "Scramble" : "",
+                "Time" : ""}
     scramble = ""
+    
     movesList = ["U", "U'", "U2",
                  "D", "D'", "D2",
                  "R", "R'", "R2",
@@ -51,6 +60,8 @@ def get_scramble():
 
     for x in range(scrambleLength):
         scramble += random.choice(movesList) + " "
+    scrambleDict["Solve"] = sessionDictionary["Solves"]
+    scrambleDict["Scramble"] = scramble
     return scramble
 #Sets the scramble to Scramble label
 def set_scramble():
@@ -74,6 +85,11 @@ def update_widgets():
     Worst.config(text = "Worst: " + sessionDictionary['Worst'])
     Ao5.config(text = "Ao5: " + sessionDictionary['Ao5'])
     Ao12.config(text = "Ao12: " + sessionDictionary['Ao12'])
+#Updates Scrambles.csv
+def update_scrambles():
+    with open(os.path.join(os.path.dirname(__file__), 'Scrambles.csv'), mode='a', encoding='utf-8', newline='') as file:
+        writer = csv.writer(file, delimiter=';')
+        writer.writerow([scrambleDict["Solve"], scrambleDict["Scramble"], scrambleDict["Time"]])
 
 window = tk.Tk()
 window.geometry("600x900")
