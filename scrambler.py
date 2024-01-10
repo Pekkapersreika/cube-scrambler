@@ -22,7 +22,10 @@ def final_time(input_start, input_stop):
     start = ""
     stop = ""
     scrambleDict["Time"] = result
-    sessionDictionary['Solves'] = str(int(sessionDictionary['Solves']) + 1)
+    if(sessionDictionary['Solves'] == "-"):
+        sessionDictionary['Solves'] = str(1)
+    else:
+        sessionDictionary['Solves'] = str(int(sessionDictionary['Solves']) + 1)
     #fakeCsv.append(scrambleDict)
     update_scrambles()
     update_widgets() 
@@ -66,15 +69,44 @@ def get_scramble():
 #Sets the scramble to Scramble label
 def set_scramble():
     Scramble.config(text=get_scramble())
+#Create Session.csv
+def create_sessioncsv():
+    createSessionDict = {
+            'Solves': '-',
+            'Best': '-',
+            'Best Ao5': '-',
+            'Best Ao12': '-',
+            'Session Avg': '-',
+            'Worst': '-',
+            'Ao5': '-',
+            'Ao12': '-'
+        }
+    field_names = list(createSessionDict.keys())
+    with open(os.path.join(os.path.dirname(__file__), 'Session.csv'), mode='w', encoding='utf-8', newline='') as file:
+        writer = csv.DictWriter(file, fieldnames = field_names, delimiter= ';')
+        writer.writeheader()
+        writer.writerow(createSessionDict)
+    session_dictionary()
+#Create Scrambles.csv
+def create_scramblecsv():
+    field_names = ['Solve', 'Scramble', 'Time']
+    with open(os.path.join(os.path.dirname(__file__), 'Scrambles.csv'), mode='w', encoding='utf-8', newline='') as file:
+        writer = csv.DictWriter(file, fieldnames = field_names, delimiter= ';')
+        writer.writeheader()
+    update_scrambles()
 #Session dictionary
 def session_dictionary():
     #Creates a dictionary from Session.csv
     global sessionDictionary
     sessionDictionary = {}
-    with open(os.path.join(os.path.dirname(__file__), 'Session.csv'), mode='r', encoding='utf-8') as file:
-        csvFile = csv.DictReader(file, delimiter = ';')
-        for row in csvFile:
-            sessionDictionary = row
+    if(os.path.isfile(os.path.join(os.path.dirname(__file__), 'Session.csv')) == TRUE):
+        with open(os.path.join(os.path.dirname(__file__), 'Session.csv'), mode='r', encoding='utf-8') as file:
+            csvFile = csv.DictReader(file, delimiter = ';')
+            for row in csvFile:
+                sessionDictionary = row
+    else:
+        create_sessioncsv()
+
 #Updates widgets
 def update_widgets():
     Solves.config(text = "Solves: " + sessionDictionary['Solves'])
@@ -88,15 +120,19 @@ def update_widgets():
 #Updates Scrambles.csv
 def update_scrambles():
     field_names = list(scrambleDict.keys())
-    with open(os.path.join(os.path.dirname(__file__), 'Scrambles.csv'), mode='a', encoding='utf-8', newline='') as file:
-        writer = csv.DictWriter(file, fieldnames = field_names)
-        #writer.writerow([scrambleDict["Solve"], scrambleDict["Scramble"], scrambleDict["Time"]])
-        writer.writerow(scrambleDict)
+    if(os.path.isfile(os.path.join(os.path.dirname(__file__), 'Scrambles.csv')) == TRUE):
+        with open(os.path.join(os.path.dirname(__file__), 'Scrambles.csv'), mode='a', encoding='utf-8', newline='') as file:
+            writer = csv.DictWriter(file, fieldnames = field_names, delimiter= ';')
+            writer.writerow(scrambleDict)
+    else:
+        create_scramblecsv()
 #On window close updates the session csv
 def update_session():
+    field_names = list(sessionDictionary.keys())
     with open(os.path.join(os.path.dirname(__file__), 'Session.csv'), mode='a', encoding='utf-8', newline='') as file:
-        writer = csv.writer(file, delimiter=';')
-        writer.writerow([scrambleDict["Solve"], scrambleDict["Scramble"], scrambleDict["Time"]])
+        writer = csv.DictWriter(file, fieldnames = field_names, delimiter= ';')
+        writer.writerow(sessionDictionary)
+    window.destroy()
 
 window = tk.Tk()
 window.geometry("600x900")
@@ -166,4 +202,5 @@ Worst.place(relx=0.9, rely=0.8, anchor="ne")
 Ao5.place(relx=0.9, rely=0.85, anchor="ne")
 Ao12.place(relx=0.9, rely=0.9, anchor="ne")
 
+window.protocol("WM_DELETE_WINDOW", update_session)
 window.mainloop()
