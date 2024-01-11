@@ -3,22 +3,18 @@ from tkinter import *
 import random
 import csv
 import os
+import time
 
 #Calculates the final time of the solve
 def final_time(input_start, input_stop):
-    global start
-    global stop
 
     finaltime = float(input_start)-float(input_stop)
     finaltime = float(round(finaltime,2) / -1)
     result = ""
     result += (str(finaltime))
     sessionTimes.append(finaltime)
-    #print(sessionTimes)
 
     StopWatch.config(text = result)
-    start = ""
-    stop = ""
     scrambleDict["Time"] = result
 
     if(sessionDictionary['Best'] == '-'):
@@ -38,15 +34,11 @@ def final_time(input_start, input_stop):
 #Starts the timer
 def start_time(event = None):
     global start
-    global running
-    import time
     start = time.time()
     StopWatch.config(text = "Timing")
     window.bind("<space>", stop_time)
 #Stops the timer
 def stop_time(event = None):
-    global stop
-    import time
     stop = time.time()
     final_time(start, stop)
 #Gets the next scramble
@@ -193,7 +185,7 @@ def calc_ao5():
         sessionDictionary['Ao5'] = round(result,2)
         if(sessionDictionary['Best Ao5'] == '-' or float(sessionDictionary['Best Ao5']) > float(sessionDictionary['Ao5'])):
             sessionDictionary['Best Ao5'] = round(result,2)
-
+#Calculates the average of last 12 solves
 def calc_ao12():
     if(len(sessionTimes) > 11):
         ao12List = sessionTimes[(len(sessionTimes) - 12)::]
