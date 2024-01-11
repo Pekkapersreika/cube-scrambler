@@ -128,12 +128,12 @@ def initialize_times_list():
 def update_widgets():
     Solves.config(text = "Solves: " + sessionDictionary['Solves'])
     Best.config(text = "Best: " + sessionDictionary['Best'])
-    BestAo5.config(text = "Best Ao5: " + sessionDictionary['Best Ao5'])
-    BestAo12.config(text = "Best Ao12: " + sessionDictionary['Best Ao12'])
+    BestAo5.config(text = "Best Ao5: " + str(sessionDictionary['Best Ao5']))
+    BestAo12.config(text = "Best Ao12: " + str(sessionDictionary['Best Ao12']))
     SessionAvg.config(text = "Session Avg: " + str(sessionDictionary['Session Avg']))
     Worst.config(text = "Worst: " + sessionDictionary['Worst'])
     Ao5.config(text = "Ao5: " + str(sessionDictionary['Ao5']))
-    Ao12.config(text = "Ao12: " + sessionDictionary['Ao12'])
+    Ao12.config(text = "Ao12: " + str(sessionDictionary['Ao12']))
 #Updates Scrambles.csv
 def update_scrambles():
     field_names = list(scrambleDict.keys())
@@ -160,6 +160,7 @@ def check_results(timeToCheck):
         sessionDictionary['Worst'] = str(timeToCheck)
     calc_average()
     calc_ao5()
+    calc_ao12()
 #Calculates the average
 def calc_average():
     if(len(sessionTimes) > 3):
@@ -190,6 +191,26 @@ def calc_ao5():
         result = result - worst
         result = result / 3
         sessionDictionary['Ao5'] = round(result,2)
+        if(sessionDictionary['Best Ao5'] == '-' or float(sessionDictionary['Best Ao5']) > float(sessionDictionary['Ao5'])):
+            sessionDictionary['Best Ao5'] = round(result,2)
+
+def calc_ao12():
+    if(len(sessionTimes) > 11):
+        ao12List = sessionTimes[(len(sessionTimes) - 12)::]
+        ao12List.sort()
+        best = ao12List[0]
+        worst = ao12List[11]
+        result = 0
+
+        for item in ao12List:
+            result += item
+
+        result = result - best
+        result = result - worst
+        result = result / 10
+        sessionDictionary['Ao12'] = round(result,2)
+        if(sessionDictionary['Best Ao12'] == '-' or float(sessionDictionary['Best Ao12']) > float(sessionDictionary['Ao12'])):
+            sessionDictionary['Best Ao12'] = round(result,2)
 
 window = tk.Tk()
 window.geometry("600x900")
