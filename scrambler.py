@@ -4,7 +4,11 @@ import random
 import csv
 import os
 import time
-
+import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use("TkAgg")
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+plt.ion()
 #Calculates the final time of the solve
 def final_time(input_start, input_stop):
 
@@ -204,12 +208,101 @@ def calc_ao12():
         if(sessionDictionary['Best Ao12'] == '-' or float(sessionDictionary['Best Ao12']) > float(sessionDictionary['Ao12'])):
             sessionDictionary['Best Ao12'] = round(result,2)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Graph testing
+def plot_graph(event = None):
+    global scatter
+    hide_stuff()
+    window.geometry("1000x900")
+    nmbr = []
+    i = 1
+    for item in sessionTimes:
+        nmbr.append(i)
+        i += 1
+    df1 = {
+    'Solve': nmbr, 
+    'Time': sessionTimes,
+    }
+    # --- 
+    figure = plt.Figure(figsize=(10,10))
+
+    scatter = FigureCanvasTkAgg(figure, window)
+    scatter.get_tk_widget().place(relx=0.5, rely=0.5, anchor="center")
+    ax1 = figure.add_subplot(111)
+    ax1.plot(df1['Solve'], df1['Time'], color='red')
+
+    ax1.set_xlabel('Number of solves')
+    ax1.set_title('Times in session')
+
+    window.bind("<c>", show_stuff)
+
+def hide_stuff():
+    Scramble.place_forget()
+    StopWatch.place_forget()
+    Solves.place_forget()
+    Best.place_forget()
+    BestAo5.place_forget()
+    BestAo12.place_forget()
+    SessionAvg.place_forget()
+    Worst.place_forget()
+    Ao5.place_forget()
+    Ao12.place_forget()
+def show_stuff(event = None):
+    window.geometry("600x900")
+    #figure.canvas.flush_events()
+    scatter.get_tk_widget().destroy()
+    Scramble.place(relx=0.5, rely=0.25, anchor="center")
+    window.bind("<space>", start_time)
+    window.bind("<c>", plot_graph)
+    StopWatch.place(relx=0.5, rely=0.5, anchor="center")
+    Solves.place(relx=0.10, rely=0.75, anchor="nw")
+    Best.place(relx=0.10, rely=0.8, anchor="nw")
+    BestAo5.place(relx=0.10, rely=0.85, anchor="nw")
+    BestAo12.place(relx=0.10, rely=0.9, anchor="nw")
+    SessionAvg.place(relx=0.9, rely=0.75, anchor="ne")
+    Worst.place(relx=0.9, rely=0.8, anchor="ne")
+    Ao5.place(relx=0.9, rely=0.85, anchor="ne")
+    Ao12.place(relx=0.9, rely=0.9, anchor="ne")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 window = tk.Tk()
 window.geometry("600x900")
 window.title("Cube scrambler")
 window.configure(background="#323232")
 session_dictionary()
 initialize_times_list()
+#asd()
 
 Scramble = tk.Label(text=get_scramble(),
          background="#323232",
@@ -261,8 +354,13 @@ Ao12 = tk.Label(text="Ao12: "  + str(sessionDictionary['Ao12']),
          foreground="#fff",
          font="Sagoe 15")
 
+
+
+
+
 Scramble.place(relx=0.5, rely=0.25, anchor="center")
 window.bind("<space>", start_time)
+window.bind("<c>", plot_graph)
 StopWatch.place(relx=0.5, rely=0.5, anchor="center")
 Solves.place(relx=0.10, rely=0.75, anchor="nw")
 Best.place(relx=0.10, rely=0.8, anchor="nw")
