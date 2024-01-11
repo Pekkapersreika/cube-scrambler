@@ -10,16 +10,17 @@ def final_time(input_start, input_stop):
     global stop
 
     finaltime = float(input_start)-float(input_stop)
-    finaltime = float(round(finaltime,3) / -1)
+    finaltime = float(round(finaltime,2) / -1)
     result = ""
     result += (str(finaltime))
     sessionTimes.append(finaltime)
-    print(sessionTimes)
+    #print(sessionTimes)
 
     StopWatch.config(text = result)
     start = ""
     stop = ""
     scrambleDict["Time"] = result
+
     if(sessionDictionary['Best'] == '-'):
         sessionDictionary['Best'] = result
     if(sessionDictionary['Worst'] == '-'):
@@ -28,6 +29,7 @@ def final_time(input_start, input_stop):
         sessionDictionary['Solves'] = str(1)
     else:
         sessionDictionary['Solves'] = str(int(sessionDictionary['Solves']) + 1)
+
     check_results(finaltime)
     update_scrambles()
     update_widgets() 
@@ -114,15 +116,12 @@ def session_dictionary():
 #Initialize times list
 def initialize_times_list():
     global sessionTimes
-    sessionTimes = [""]
+    sessionTimes = []
     if(os.path.isfile(os.path.join(os.path.dirname(__file__), 'Scrambles.csv')) == TRUE):
         with open(os.path.join(os.path.dirname(__file__), 'Scrambles.csv'), mode='r', encoding='utf-8', newline='') as file:
             csvFile = csv.DictReader(file, delimiter= ';')
-            for index, row in enumerate(csvFile):
-                print(index)
-                print(sessionTimes[0])
-                print(row["Time"])
-                sessionTimes[index] = row['Time']
+            for row in csvFile:
+                sessionTimes.append(float(row['Time']))
     else:
         sessionTimes = []
 #Updates widgets
@@ -131,9 +130,9 @@ def update_widgets():
     Best.config(text = "Best: " + sessionDictionary['Best'])
     BestAo5.config(text = "Best Ao5: " + sessionDictionary['Best Ao5'])
     BestAo12.config(text = "Best Ao12: " + sessionDictionary['Best Ao12'])
-    SessionAvg.config(text = "Session Avg: " + sessionDictionary['Session Avg'])
+    SessionAvg.config(text = "Session Avg: " + str(sessionDictionary['Session Avg']))
     Worst.config(text = "Worst: " + sessionDictionary['Worst'])
-    Ao5.config(text = "Ao5: " + sessionDictionary['Ao5'])
+    Ao5.config(text = "Ao5: " + str(sessionDictionary['Ao5']))
     Ao12.config(text = "Ao12: " + sessionDictionary['Ao12'])
 #Updates Scrambles.csv
 def update_scrambles():
@@ -160,21 +159,37 @@ def check_results(timeToCheck):
     if(float(sessionDictionary['Worst']) < timeToCheck):
         sessionDictionary['Worst'] = str(timeToCheck)
     calc_average()
+    calc_ao5()
 #Calculates the average
 def calc_average():
-    count = len(sessionTimes)
-    result = 0
-    print(len(sessionTimes))
-    for time in sessionTimes:
-        if((time == float(sessionDictionary['Best']) or time == float(sessionDictionary['Worst'])) and len(sessionTimes) > 3):
-            print("asd")
-            continue
-        result += time
-    print(result)
     if(len(sessionTimes) > 3):
+        result = 0
+        best = float(sessionDictionary['Best'])
+        worst = float(sessionDictionary['Worst'])
+        
+        for time in sessionTimes:
+            result += float(time)
+
+        result = result - best
+        result = result - worst
         result = result / (len(sessionTimes) - 2)
-    print(len(sessionTimes) - 2)
-    print(result)
+        sessionDictionary['Session Avg'] = round(result, 2)
+#Calculates the average of last 5 solves
+def calc_ao5():
+    if(len(sessionTimes) > 4):
+        ao5List = sessionTimes[(len(sessionTimes) - 5)::]
+        ao5List.sort()
+        best = ao5List[0]
+        worst = ao5List[4]
+        result = 0
+
+        for item in ao5List:
+            result += item
+
+        result = result - best
+        result = result - worst
+        result = result / 3
+        sessionDictionary['Ao5'] = round(result,2)
 
 window = tk.Tk()
 window.geometry("600x900")
