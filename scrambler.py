@@ -8,7 +8,6 @@ import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-plt.ion()
 #Calculates the final time of the solve
 def final_time(input_start, input_stop):
 
@@ -52,6 +51,8 @@ def get_scramble():
                 "Scramble" : "",
                 "Time" : ""}
     scramble = ""
+    scrambleList = []
+    index = 0
     
     movesList = ["U", "U'", "U2",
                  "D", "D'", "D2",
@@ -61,12 +62,20 @@ def get_scramble():
                  "B", "B'", "B2"]
     scrambleLength = 20
 
-    for x in range(scrambleLength):
-        scramble += random.choice(movesList) + " "
+    while index < scrambleLength:
+        scrambleList.append(random.choice(movesList))
+        if(index == 0 and len(scrambleList) == 1):
+            index += 1
+        else:
+            if(scrambleList[index][0] == scrambleList[index - 1][0]):
+                del scrambleList[-1]
+            else:
+                index += 1
     if(sessionDictionary["Solves"] == "-"):
         scrambleDict["Solve"] = "1"
     else:
         scrambleDict["Solve"] = str(int(sessionDictionary["Solves"]) + 1)
+    scramble = ' '.join(scrambleList)
     scrambleDict["Scramble"] = scramble
     return scramble
 #Sets the scramble to Scramble label
@@ -207,20 +216,6 @@ def calc_ao12():
         sessionDictionary['Ao12'] = round(result,2)
         if(sessionDictionary['Best Ao12'] == '-' or float(sessionDictionary['Best Ao12']) > float(sessionDictionary['Ao12'])):
             sessionDictionary['Best Ao12'] = round(result,2)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #Graph testing
 def plot_graph(event = None):
     global scatter
@@ -261,7 +256,6 @@ def hide_stuff():
     Ao12.place_forget()
 def show_stuff(event = None):
     window.geometry("600x900")
-    #figure.canvas.flush_events()
     scatter.get_tk_widget().destroy()
     Scramble.place(relx=0.5, rely=0.25, anchor="center")
     window.bind("<space>", start_time)
@@ -276,33 +270,12 @@ def show_stuff(event = None):
     Ao5.place(relx=0.9, rely=0.85, anchor="ne")
     Ao12.place(relx=0.9, rely=0.9, anchor="ne")
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 window = tk.Tk()
 window.geometry("600x900")
 window.title("Cube scrambler")
 window.configure(background="#323232")
 session_dictionary()
 initialize_times_list()
-#asd()
 
 Scramble = tk.Label(text=get_scramble(),
          background="#323232",
@@ -355,9 +328,6 @@ Ao12 = tk.Label(text="Ao12: "  + str(sessionDictionary['Ao12']),
          font="Sagoe 15")
 
 
-
-
-
 Scramble.place(relx=0.5, rely=0.25, anchor="center")
 window.bind("<space>", start_time)
 window.bind("<c>", plot_graph)
@@ -370,6 +340,5 @@ SessionAvg.place(relx=0.9, rely=0.75, anchor="ne")
 Worst.place(relx=0.9, rely=0.8, anchor="ne")
 Ao5.place(relx=0.9, rely=0.85, anchor="ne")
 Ao12.place(relx=0.9, rely=0.9, anchor="ne")
-
 window.protocol("WM_DELETE_WINDOW", update_session)
 window.mainloop()
