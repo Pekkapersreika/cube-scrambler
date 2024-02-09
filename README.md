@@ -36,7 +36,7 @@ cd yourpath\cube-scrambler
 python scrambler.py
 ```
 
-5. Use the spacebar to start and stop the timer, and 'c' to plot the graph.
+5. Use the spacebar to start and stop the timer, and 'c' to plot the graph. Click on the legend to toggle lines on or off
 
 ## File Structure
 
