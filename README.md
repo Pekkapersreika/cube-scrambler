@@ -10,12 +10,6 @@ This is a simple cube timer application built using Python's Tkinter library for
 - Visualization of solve times using a line plot graph.
 - Exporting session data to CSV files for future analysis.
 
-## Requirements
-
-- Python 3.x
-- tkinter (for GUI)
-- matplotlib (for plotting graphs)
-
 ## Usage
 
 1. Clone the repository to your local machine:
@@ -24,22 +18,15 @@ This is a simple cube timer application built using Python's Tkinter library for
  git clone https://github.com/Pekkapersreika/cube-scrambler.git
 ```
 
-3. Navigate to the project directory:
+2. Run the application:
 
-```console
-cd yourpath\cube-scrambler
- ```
+   Run by double clicking scrambler.exe in your destination folder
 
-4. Run the application:
-
-  ```console
-python scrambler.py
-```
-
-5. Use the spacebar to start and stop the timer, and 'c' to plot the graph. Click on the legend to toggle lines on or off
+3. Use the spacebar to start and stop the timer, and 'c' to plot the graph. Click on the legend to toggle lines on or off
 
 ## File Structure
 
-- `scrambler.py`: Main Python script containing the cube timer application.
-- `Session.csv`: CSV file to store session statistics.
-- `Scrambles.csv`: CSV file to store scramble data.
+- `scrambler.exe`: Main application.
+- `_internal`: Folder containing needed files to run
+- `Session.csv`: CSV file to store session statistics in the _internal folder.
+- `Scrambles.csv`: CSV file to store scramble data in the _internal folder.
