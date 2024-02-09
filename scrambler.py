@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 matplotlib.use("TkAgg")
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib.ticker as ticker 
 #Calculates the final time of the solve
 def final_time(input_start, input_stop):
 
@@ -217,10 +218,21 @@ def calc_ao12():
         if(sessionDictionary['Best Ao12'] == '-' or float(sessionDictionary['Best Ao12']) > float(sessionDictionary['Ao12'])):
             sessionDictionary['Best Ao12'] = round(result,2)
 #Graph testing
+
+#def agreement_changed():
+#    tk.messagebox.showinfo(title='Result',message=agreement.get())
 def plot_graph(event = None):
     global scatter
     hide_stuff()
     window.geometry("1000x900")
+    
+    #tk.Checkbutton(window,
+    #            text='I agree',
+    #            command=agreement_changed,
+    #            variable=agreement,
+    #            onvalue='agree',
+    #            offvalue='disagree').place(relx=0.5, rely=0.025)
+
     nmbr = []
     i = 1
     for item in sessionTimes:
@@ -230,16 +242,34 @@ def plot_graph(event = None):
     'Solve': nmbr, 
     'Time': sessionTimes,
     }
-    # --- 
-    figure = plt.Figure(figsize=(10,10))
+    i = 0 
+    figure = plt.Figure(figsize=(10,10), facecolor="#323232")
 
     scatter = FigureCanvasTkAgg(figure, window)
     scatter.get_tk_widget().place(relx=0.5, rely=0.5, anchor="center")
     ax1 = figure.add_subplot(111)
-    ax1.plot(df1['Solve'], df1['Time'], color='red')
+    ax1.plot(df1['Solve'], df1['Time'], color='#fff', marker='.')
+
+    xcoords = df1['Solve']
+    ycoords = df1["Time"]
+    for item in ycoords:
+        ax1.text(xcoords[i], item + 0.005, str(item), horizontalalignment="center")
+        i += 1
 
     ax1.set_xlabel('Number of solves')
+    ax1.set_ylabel('Time')
     ax1.set_title('Times in session')
+    ax1.set_facecolor("#323232")
+
+    ax1.xaxis.set_major_locator(ticker.MultipleLocator(5))
+    ax1.xaxis.set_minor_locator(ticker.MultipleLocator(1))
+    ax1.yaxis.set_major_locator(ticker.MultipleLocator(1))
+    ax1.yaxis.set_minor_locator(ticker.MultipleLocator(0.1))
+
+    #ax1.spines['bottom'].set_color('#fff')
+    #ax1.spines['top'].set_color('#fff')
+    #ax1.spines['right'].set_color('#fff')
+    #ax1.spines['left'].set_color('#fff')
 
     window.bind("<c>", show_stuff)
 
@@ -341,4 +371,5 @@ Worst.place(relx=0.9, rely=0.8, anchor="ne")
 Ao5.place(relx=0.9, rely=0.85, anchor="ne")
 Ao12.place(relx=0.9, rely=0.9, anchor="ne")
 window.protocol("WM_DELETE_WINDOW", update_session)
+#agreement = tk.StringVar()
 window.mainloop()
