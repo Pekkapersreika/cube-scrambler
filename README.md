@@ -22,7 +22,7 @@ This is a simple cube timer application built using Python's Tkinter library for
 
    Run by double clicking scrambler.exe in your destination folder
 
-3. Use the spacebar to start and stop the timer, and 'c' to plot the graph. Click on the legend to toggle lines on or off
+3. Use the spacebar to start and stop the timer. Click on the legend to toggle lines on or off
 
 ## File Structure
 
