@@ -1,4 +1,4 @@
-# Cube Timer
+# Cube Scrambler
 
 This is a simple cube timer application built using Python's Tkinter library for the GUI and matplotlib for plotting graphs. The timer allows users to time their Rubik's Cube solves, keep track of their session statistics, and visualize their solve times.
 
