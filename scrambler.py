@@ -413,13 +413,12 @@ labels = []
 initialize_times_list()
 
 # Creating and placing labels for GUI
-menubar = tk.Menu(window)
-timermenu = tk.Menu(menubar, tearoff=0)
-timermenu.add_command(label="Timer", command=show_timer)
+menubar = tk.Menu(window, tearoff=0)
+menubar.add_command(label="Timer", command=show_timer)
 statsmenu = tk.Menu(menubar, tearoff=0)
 statsmenu.add_command(label="Times", command=show_times)
 statsmenu.add_command(label="Graph", command=plot_graph)
-menubar.add_cascade(label="Timer", menu=timermenu)
+#menubar.add_cascade(label="Timer", menu=timermenu)
 menubar.add_cascade(label="Statistics", menu=statsmenu)
 Scramble = tk.Label(text=get_scramble(),
          background="#323232",
