@@ -15,17 +15,17 @@ def final_time(input_start, input_stop):
     finaltime = float(input_start) - float(input_stop)
     finaltime = float(round(finaltime, 2) / -1)
     result = str(finaltime)
-    sessionTimes.append(finaltime)
+    session_times.append(finaltime)
     StopWatch.config(text=result)
-    scrambleDict["Time"] = result
-    if sessionDictionary['Best'] == '-':
-        sessionDictionary['Best'] = result
-    if sessionDictionary['Worst'] == '-':
-        sessionDictionary['Worst'] = result
-    if sessionDictionary['Solves'] == '-':
-        sessionDictionary['Solves'] = str(1)
+    scramble_dict["Time"] = result
+    if session_dictionary['Best'] == '-':
+        session_dictionary['Best'] = result
+    if session_dictionary['Worst'] == '-':
+        session_dictionary['Worst'] = result
+    if session_dictionary['Solves'] == '-':
+        session_dictionary['Solves'] = str(1)
     else:
-        sessionDictionary['Solves'] = str(int(sessionDictionary['Solves']) + 1)
+        session_dictionary['Solves'] = str(int(session_dictionary['Solves']) + 1)
     check_results(finaltime)
     update_scrambles()
     update_widgets()
@@ -46,10 +46,10 @@ def stop_time(event=None):
 
 # Function to generate a random scramble
 def get_scramble():
-    global scrambleDict
-    scrambleDict = {"Solve": "", "Scramble": "", "Time": ""}
+    global scramble_dict
+    scramble_dict = {"Solve": "", "Scramble": "", "Time": ""}
     scramble = ""
-    scrambleList = []
+    scramblelist = []
     index = 0
     movesList = ["U", "U'", "U2",
                  "D", "D'", "D2",
@@ -59,20 +59,20 @@ def get_scramble():
                  "B", "B'", "B2"]
     scrambleLength = 20
     while index < scrambleLength:
-        scrambleList.append(random.choice(movesList))
-        if index == 0 and len(scrambleList) == 1:
+        scramblelist.append(random.choice(movesList))
+        if index == 0 and len(scramblelist) == 1:
             index += 1
         else:
-            if scrambleList[index][0] == scrambleList[index - 1][0]:
-                del scrambleList[-1]
+            if scramblelist[index][0] == scramblelist[index - 1][0]:
+                del scramblelist[-1]
             else:
                 index += 1
-    if sessionDictionary["Solves"] == "-":
-        scrambleDict["Solve"] = "1"
+    if session_dictionary["Solves"] == "-":
+        scramble_dict["Solve"] = "1"
     else:
-        scrambleDict["Solve"] = str(int(sessionDictionary["Solves"]) + 1)
-    scramble = ' '.join(scrambleList)
-    scrambleDict["Scramble"] = scramble
+        scramble_dict["Solve"] = str(int(session_dictionary["Solves"]) + 1)
+    scramble = ' '.join(scramblelist)
+    scramble_dict["Scramble"] = scramble
     return scramble
 
 # Function to set the scramble in the GUI
@@ -81,7 +81,7 @@ def set_scramble():
 
 # Function to create a CSV file for the session
 def create_sessioncsv():
-    createSessionDict = {
+    create_session_dict = {
             'Solves': '-',
             'Best': '-',
             'Best Ao5': '-',
@@ -91,12 +91,12 @@ def create_sessioncsv():
             'Ao5': '-',
             'Ao12': '-'
         }
-    field_names = list(createSessionDict.keys())
+    field_names = list(create_session_dict.keys())
     with open(os.path.join(os.path.dirname(__file__), 'Session.csv'), mode='w', encoding='utf-8', newline='') as file:
         writer = csv.DictWriter(file, fieldnames=field_names, delimiter=';')
         writer.writeheader()
-        writer.writerow(createSessionDict)
-    session_dictionary()
+        writer.writerow(create_session_dict)
+    init_session_dictionary()
 
 # Function to create a CSV file for scrambles
 def create_scramblecsv():
@@ -107,85 +107,88 @@ def create_scramblecsv():
     update_scrambles()
 
 # Function to load session dictionary from CSV
-def session_dictionary():
-    global sessionDictionary
-    sessionDictionary = {}
+def init_session_dictionary():
+    global session_dictionary
+    session_dictionary = {}
     if os.path.isfile(os.path.join(os.path.dirname(__file__), 'Session.csv')):
         with open(os.path.join(os.path.dirname(__file__), 'Session.csv'), mode='r', encoding='utf-8') as file:
             csvFile = csv.DictReader(file, delimiter=';')
             for row in csvFile:
-                sessionDictionary = row
+                session_dictionary = row
     else:
         create_sessioncsv()
 
 # Function to initialize times list from CSV
 def initialize_times_list():
-    global sessionTimes
-    sessionTimes = []
+    global session_times
+    session_times = []
     if os.path.isfile(os.path.join(os.path.dirname(__file__), 'Scrambles.csv')):
         with open(os.path.join(os.path.dirname(__file__), 'Scrambles.csv'), mode='r', encoding='utf-8', newline='') as file:
             csvFile = csv.DictReader(file, delimiter=';')
             for row in csvFile:
-                sessionTimes.append(float(row['Time']))
+                session_times.append(float(row['Time']))
+                time_frames(row["Solve"], row["Scramble"], row["Time"])
     else:
-        sessionTimes = []
+        session_times = []
 
 # Function to update widgets with session information
 def update_widgets():
-    Solves.config(text="Solves: " + sessionDictionary['Solves'])
-    Best.config(text="Best: " + sessionDictionary['Best'])
-    BestAo5.config(text="Best Ao5: " + str(sessionDictionary['Best Ao5']))
-    BestAo12.config(text="Best Ao12: " + str(sessionDictionary['Best Ao12']))
-    SessionAvg.config(text="Session Avg: " + str(sessionDictionary['Session Avg']))
-    Worst.config(text="Worst: " + sessionDictionary['Worst'])
-    Ao5.config(text="Ao5: " + str(sessionDictionary['Ao5']))
-    Ao12.config(text="Ao12: " + str(sessionDictionary['Ao12']))
+    Solves.config(text="Solves: " + session_dictionary['Solves'])
+    Best.config(text="Best: " + session_dictionary['Best'])
+    BestAo5.config(text="Best Ao5: " + str(session_dictionary['Best Ao5']))
+    BestAo12.config(text="Best Ao12: " + str(session_dictionary['Best Ao12']))
+    SessionAvg.config(text="Session Avg: " + str(session_dictionary['Session Avg']))
+    Worst.config(text="Worst: " + session_dictionary['Worst'])
+    Ao5.config(text="Ao5: " + str(session_dictionary['Ao5']))
+    Ao12.config(text="Ao12: " + str(session_dictionary['Ao12']))
 
 # Function to update the scrambles CSV
 def update_scrambles():
-    field_names = list(scrambleDict.keys())
+    field_names = list(scramble_dict.keys())
     if os.path.isfile(os.path.join(os.path.dirname(__file__), 'Scrambles.csv')):
         with open(os.path.join(os.path.dirname(__file__), 'Scrambles.csv'), mode='a', encoding='utf-8', newline='') as file:
             writer = csv.DictWriter(file, fieldnames=field_names, delimiter=';')
-            writer.writerow(scrambleDict)
+            writer.writerow(scramble_dict)
+        time_frames(scramble_dict["Solve"], scramble_dict["Scramble"], scramble_dict["Time"])
+
     else:
         create_scramblecsv()
 
 # Function to update the session CSV
 def update_session():
-    field_names = list(sessionDictionary.keys())
+    field_names = list(session_dictionary.keys())
     with open(os.path.join(os.path.dirname(__file__), 'Session.csv'), mode='a', encoding='utf-8', newline='') as file:
         writer = csv.DictWriter(file, fieldnames=field_names, delimiter=';')
-        writer.writerow(sessionDictionary)
+        writer.writerow(session_dictionary)
     window.destroy()
 
 # Function to check results and update session dictionary
 def check_results(timeToCheck):
-    if float(sessionDictionary['Best']) > timeToCheck:
-        sessionDictionary['Best'] = str(timeToCheck)
-    if float(sessionDictionary['Worst']) < timeToCheck:
-        sessionDictionary['Worst'] = str(timeToCheck)
+    if float(session_dictionary['Best']) > timeToCheck:
+        session_dictionary['Best'] = str(timeToCheck)
+    if float(session_dictionary['Worst']) < timeToCheck:
+        session_dictionary['Worst'] = str(timeToCheck)
     calc_average()
     calc_ao5()
     calc_ao12()
 
 # Function to calculate the session average
 def calc_average():
-    if len(sessionTimes) > 3:
+    if len(session_times) > 3:
         result = 0
-        best = float(sessionDictionary['Best'])
-        worst = float(sessionDictionary['Worst'])
-        for time in sessionTimes:
+        best = float(session_dictionary['Best'])
+        worst = float(session_dictionary['Worst'])
+        for time in session_times:
             result += float(time)
         result = result - best
         result = result - worst
-        result = result / (len(sessionTimes) - 2)
-        sessionDictionary['Session Avg'] = round(result, 2)
+        result = result / (len(session_times) - 2)
+        session_dictionary['Session Avg'] = round(result, 2)
 
 # Function to calculate the Ao5
 def calc_ao5():
-    if len(sessionTimes) > 4:
-        ao5List = sessionTimes[(len(sessionTimes) - 5)::]
+    if len(session_times) > 4:
+        ao5List = session_times[(len(session_times) - 5)::]
         ao5List.sort()
         best = ao5List[0]
         worst = ao5List[4]
@@ -195,14 +198,14 @@ def calc_ao5():
         result = result - best
         result = result - worst
         result = result / 3
-        sessionDictionary['Ao5'] = round(result, 2)
-        if sessionDictionary['Best Ao5'] == '-' or float(sessionDictionary['Best Ao5']) > float(sessionDictionary['Ao5']):
-            sessionDictionary['Best Ao5'] = round(result, 2)
+        session_dictionary['Ao5'] = round(result, 2)
+        if session_dictionary['Best Ao5'] == '-' or float(session_dictionary['Best Ao5']) > float(session_dictionary['Ao5']):
+            session_dictionary['Best Ao5'] = round(result, 2)
 
 # Function to calculate the Ao12
 def calc_ao12():
-    if len(sessionTimes) > 11:
-        ao12List = sessionTimes[(len(sessionTimes) - 12)::]
+    if len(session_times) > 11:
+        ao12List = session_times[(len(session_times) - 12)::]
         ao12List.sort()
         best = ao12List[0]
         worst = ao12List[11]
@@ -212,35 +215,35 @@ def calc_ao12():
         result = result - best
         result = result - worst
         result = result / 10
-        sessionDictionary['Ao12'] = round(result, 2)
-        if sessionDictionary['Best Ao12'] == '-' or float(sessionDictionary['Best Ao12']) > float(sessionDictionary['Ao12']):
-            sessionDictionary['Best Ao12'] = round(result, 2)
+        session_dictionary['Ao12'] = round(result, 2)
+        if session_dictionary['Best Ao12'] == '-' or float(session_dictionary['Best Ao12']) > float(session_dictionary['Ao12']):
+            session_dictionary['Best Ao12'] = round(result, 2)
 
 # Function to plot the graph
 def plot_graph(event=None):
-    global scatter, timeLine, ao5Line, ao12Line, line_visibility
+    global scatter, line_visibility
     hide_stuff()
     window.geometry("1000x900")
     nmbr = []
     i = 1
-    for item in sessionTimes:
+    for item in session_times:
         nmbr.append(i)
         i += 1
     df1 = {
         'Solve': nmbr,
-        'Time': sessionTimes,
+        'Time': session_times,
     }
     ao5_list = []
     ao5_indices = []
-    if len(sessionTimes) >= 5:
-        for j in range(len(sessionTimes) - 4):
-            ao5_list.append(sum(sessionTimes[j:j + 5]) / 5)
+    if len(session_times) >= 5:
+        for j in range(len(session_times) - 4):
+            ao5_list.append(sum(session_times[j:j + 5]) / 5)
             ao5_indices.append(j + 4)
     ao12_list = []
     ao12_indices = []
-    if len(sessionTimes) >= 12:
-        for j in range(len(sessionTimes) - 11):
-            ao12_list.append(sum(sessionTimes[j:j + 12]) / 12)
+    if len(session_times) >= 12:
+        for j in range(len(session_times) - 11):
+            ao12_list.append(sum(session_times[j:j + 12]) / 12)
             ao12_indices.append(j + 11)
     i = 0
     figure = plt.Figure(figsize=(10, 10), facecolor="#323232")
@@ -288,7 +291,7 @@ def plot_graph(event=None):
         line_visibility[line_name] = vis
         scatter.draw()
     scatter.mpl_connect('pick_event', onpick)
-    window.bind("<c>", show_stuff)
+    #statsmenu.delete("Graph")
 
 # Function to hide widgets
 def hide_stuff():
@@ -302,15 +305,30 @@ def hide_stuff():
     Worst.place_forget()
     Ao5.place_forget()
     Ao12.place_forget()
+    hide_graph()
+    hide_times()
+def hide_times():
+    try:
+        solveLabel.place_forget()
+        scrambleLabel.place_forget()    
+        timeLabel.place_forget()
+    except NameError:
+        pass
+    for item in labels:
+        item.place_forget()
 
-# Function to show widgets
-def show_stuff(event=None):
-    global scatter, timeLine, ao5Line, ao12Line
+def hide_graph():
+    global scatter
     window.geometry("600x900")
-    scatter.get_tk_widget().destroy()
+    try:
+        scatter.get_tk_widget().destroy()
+    except NameError:
+        pass
+# Function to show widgets
+def show_timer(event=None):
+    hide_stuff()
     Scramble.place(relx=0.5, rely=0.25, anchor="center")
     window.bind("<space>", start_time)
-    window.bind("<c>", plot_graph)
     StopWatch.place(relx=0.5, rely=0.5, anchor="center")
     Solves.place(relx=0.10, rely=0.75, anchor="nw")
     Best.place(relx=0.10, rely=0.8, anchor="nw")
@@ -321,15 +339,88 @@ def show_stuff(event=None):
     Ao5.place(relx=0.9, rely=0.85, anchor="ne")
     Ao12.place(relx=0.9, rely=0.9, anchor="ne")
 
+
+def show_times(event=None):
+    global solveLabel, scrambleLabel, timeLabel
+    hide_stuff()
+
+    solveLabel = tk.Label(window,
+                          text="Solve:",
+                          bg="#323232",
+                          fg="#fff",
+                          font="Sagoe 15",)  # Set width to match sub_frame_width
+    solveLabel.place(relx=0, rely=0.025, anchor="nw")  # Center the solve number in the frame
+
+    scrambleLabel = tk.Label(window,
+                          text="Scramble:",
+                          bg="#323232",
+                          fg="#fff",
+                          font="Sagoe 15",)  # Set width to match sub_frame_width
+    scrambleLabel.place(relx=0.5, rely=0.025, anchor="n")  # Center the solve number in the frame
+
+    timeLabel = tk.Label(window,
+                          text="Time:",
+                          bg="#323232",
+                          fg="#fff",
+                          font="Sagoe 15",)  # Set width to match sub_frame_width
+    timeLabel.place(relx=1.0, rely=0.025, anchor="ne")  # Center the solve number in the frame
+
+    y = 0.06
+    x = 0
+    i = 0
+    while(i < len(labels) - 2):
+        labels[i].place(relx= x, rely= y, anchor="nw")
+        labels[i + 1].place(relx= x + 0.5, rely= y, anchor="n")
+        labels[i + 2].place(relx= x + 1.0, rely= y, anchor="ne")
+        i += 3
+        y += 0.03
+
+def time_frames(solve, scramble, time):
+    global labels
+
+    solveLabel = tk.Label(window,
+                          text=solve,
+                          bg="#323232",
+                          fg="#fff",
+                          font="Sagoe 15",
+                          width=3)  # Set width to match sub_frame_width
+
+    # Adjust the width of the scramble frame
+    scrambleLabel = tk.Label(window,
+                             text=scramble,
+                             bg="#323232",
+                             fg="#fff",
+                             font="Sagoe 14",
+                             width=45)  # Set width to fit largest content
+
+    timeLabel = tk.Label(window,
+                         text=time,
+                         bg="#323232",
+                         fg="#fff",
+                         font="Sagoe 15",
+                         width=4)  # Set width to match sub_frame_width
+    labels.append(solveLabel)
+    labels.append(scrambleLabel)
+    labels.append(timeLabel)
+
 # Initializing the Tkinter window
 window = tk.Tk()
 window.geometry("600x900")
 window.title("Cube scrambler")
 window.configure(background="#323232")
-session_dictionary()
+init_session_dictionary()
+labels = []
 initialize_times_list()
 
 # Creating and placing labels for GUI
+menubar = tk.Menu(window)
+timermenu = tk.Menu(menubar, tearoff=0)
+timermenu.add_command(label="Timer", command=show_timer)
+statsmenu = tk.Menu(menubar, tearoff=0)
+statsmenu.add_command(label="Times", command=show_times)
+statsmenu.add_command(label="Graph", command=plot_graph)
+menubar.add_cascade(label="Timer", menu=timermenu)
+menubar.add_cascade(label="Statistics", menu=statsmenu)
 Scramble = tk.Label(text=get_scramble(),
          background="#323232",
          foreground="#fff",
@@ -338,53 +429,42 @@ StopWatch = tk.Label(text="0.0",
          background="#323232",
          foreground="#fff",
          font="Lcd 50")
-Solves = tk.Label(text="Solves: " + str(sessionDictionary['Solves']),
+Solves = tk.Label(text="Solves: " + str(session_dictionary['Solves']),
          background="#323232",
          foreground="#fff",
          font="Sagoe 15")
-Best = tk.Label(text="Best: "  + str(sessionDictionary['Best']),
+Best = tk.Label(text="Best: "  + str(session_dictionary['Best']),
          background="#323232",
          foreground="#fff",
          font="Sagoe 15")
-BestAo5 = tk.Label(text="Best Ao5: "  + str(sessionDictionary['Best Ao5']),
+BestAo5 = tk.Label(text="Best Ao5: "  + str(session_dictionary['Best Ao5']),
          background="#323232",
          foreground="#fff",
          font="Sagoe 15")
-BestAo12 = tk.Label(text="Best Ao12: "  + str(sessionDictionary['Best Ao12']),
+BestAo12 = tk.Label(text="Best Ao12: "  + str(session_dictionary['Best Ao12']),
          background="#323232",
          foreground="#fff",
          font="Sagoe 15")
-SessionAvg = tk.Label(text="Session Avg: "  + str(sessionDictionary['Session Avg']),
+SessionAvg = tk.Label(text="Session Avg: "  + str(session_dictionary['Session Avg']),
          background="#323232",
          foreground="#fff",
          font="Sagoe 15")
-Worst = tk.Label(text="Worst: "  + str(sessionDictionary['Worst']),
+Worst = tk.Label(text="Worst: "  + str(session_dictionary['Worst']),
          background="#323232",
          foreground="#fff",
          font="Sagoe 15")
-Ao5 = tk.Label(text="Ao5: "  + str(sessionDictionary['Ao5']),
+Ao5 = tk.Label(text="Ao5: "  + str(session_dictionary['Ao5']),
          background="#323232",
          foreground="#fff",
          font="Sagoe 15")
-Ao12 = tk.Label(text="Ao12: "  + str(sessionDictionary['Ao12']),
+Ao12 = tk.Label(text="Ao12: "  + str(session_dictionary['Ao12']),
          background="#323232",
          foreground="#fff",
          font="Sagoe 15")
 
-# Placing labels in the window
-Scramble.place(relx=0.5, rely=0.25, anchor="center")
-window.bind("<space>", start_time)
-window.bind("<c>", plot_graph)
-StopWatch.place(relx=0.5, rely=0.5, anchor="center")
-Solves.place(relx=0.10, rely=0.75, anchor="nw")
-Best.place(relx=0.10, rely=0.8, anchor="nw")
-BestAo5.place(relx=0.10, rely=0.85, anchor="nw")
-BestAo12.place(relx=0.10, rely=0.9, anchor="nw")
-SessionAvg.place(relx=0.9, rely=0.75, anchor="ne")
-Worst.place(relx=0.9, rely=0.8, anchor="ne")
-Ao5.place(relx=0.9, rely=0.85, anchor="ne")
-Ao12.place(relx=0.9, rely=0.9, anchor="ne")
+show_timer()
 
 # Binding the window closure to update_session function
 window.protocol("WM_DELETE_WINDOW", update_session)
+window.config(menu=menubar)
 window.mainloop()  # Starting the Tkinter event loop
