@@ -342,63 +342,115 @@ def show_timer(event=None):
 
 def show_times(event=None):
     global solveLabel, scrambleLabel, timeLabel
-    hide_stuff()
 
+    # Ensure widgets are hidden
+    hide_stuff()
+    # Create and place labels
     solveLabel = tk.Label(window,
                           text="Solve:",
                           bg="#323232",
                           fg="#fff",
-                          font="Sagoe 15",)  # Set width to match sub_frame_width
-    solveLabel.place(relx=0, rely=0.025, anchor="nw")  # Center the solve number in the frame
+                          font="Sagoe 15")
+    solveLabel.place(relx=0, rely=0, anchor="nw")
 
     scrambleLabel = tk.Label(window,
                           text="Scramble:",
                           bg="#323232",
                           fg="#fff",
-                          font="Sagoe 15",)  # Set width to match sub_frame_width
-    scrambleLabel.place(relx=0.5, rely=0.025, anchor="n")  # Center the solve number in the frame
+                          font="Sagoe 15")
+    scrambleLabel.place(relx=0.48, rely=0, anchor="n")
 
     timeLabel = tk.Label(window,
                           text="Time:",
                           bg="#323232",
                           fg="#fff",
-                          font="Sagoe 15",)  # Set width to match sub_frame_width
-    timeLabel.place(relx=1.0, rely=0.025, anchor="ne")  # Center the solve number in the frame
+                          font="Sagoe 15")
+    timeLabel.place(relx=0.975, rely=0, anchor="ne")
 
-    y = 0.06
-    x = 0
+    # Place labels dynamically
+    y = 0
     i = 0
-    while(i < len(labels) - 2):
-        labels[i].place(relx= x, rely= y, anchor="nw")
-        labels[i + 1].place(relx= x + 0.5, rely= y, anchor="n")
-        labels[i + 2].place(relx= x + 1.0, rely= y, anchor="ne")
+    step = 1 / (len(session_times) + 0.75)
+    dynamic_height = 27.4 * len(session_times)
+    inner_frame.config(height=dynamic_height)
+    while i < len(labels) - 2:
+        labels[i].place(relx=0, rely=y, anchor="nw")
+        labels[i + 1].place(relx=0.48, rely=y, anchor="n")
+        labels[i + 2].place(relx=0.975, rely=y, anchor="ne")
+        y += step
         i += 3
-        y += 0.03
+    #while i < len(labels):
+    #    labels[i].pack(fill="x")
+    #    i += 1
+
+    # Create canvas and inner frame
+    canvas.pack(side="left", fill="both", expand=True)
+    scrollbar = tk.Scrollbar(window, orient="vertical", command=canvas.yview)
+    scrollbar.pack(side="right", fill="y")
+
+    inner_frame.update_idletasks()  # Ensure widgets inside inner_frame are properly sized
+    canvas.create_window((0, 0), window=inner_frame, anchor="nw", width=window.winfo_width())
+    #inner_frame.config(width=100)
+    #inner_frame.place(relx=0, rely=0)
+
+    # Configure canvas scrolling
+    canvas.configure(yscrollcommand=scrollbar.set)
+    canvas.config(scrollregion=canvas.bbox("all"))
+
+    # Place container
+    container.place(relx=0, rely=0.025, relwidth=1, relheight=1, anchor="nw")
 
 def time_frames(solve, scramble, time):
     global labels
+    time_frame = tk.Frame(inner_frame, height=28.125)
 
-    solveLabel = tk.Label(window,
+    #solveLabel = tk.Label(time_frame,
+    #                      text=solve,
+    #                      bg="#323232",
+    #                      fg="#fff",
+    #                      font="Sagoe 15",
+    #                      width=3)
+#
+    ## Adjust the width of the scramble frame
+    #scrambleLabel = tk.Label(time_frame,
+    #                         text=scramble,
+    #                         bg="#323232",
+    #                         fg="#fff",
+    #                         font="Sagoe 14",
+    #                         width=45)
+#
+    #timeLabel = tk.Label(time_frame,
+    #                     text=time,
+    #                     bg="#323232",
+    #                     fg="#fff",
+    #                     font="Sagoe 15",
+    #                     width=4)
+    #
+    solveLabel = tk.Label(inner_frame,
                           text=solve,
                           bg="#323232",
                           fg="#fff",
-                          font="Sagoe 15",
-                          width=3)  # Set width to match sub_frame_width
+                          font="Sagoe 15")
 
     # Adjust the width of the scramble frame
-    scrambleLabel = tk.Label(window,
+    scrambleLabel = tk.Label(inner_frame,
                              text=scramble,
                              bg="#323232",
                              fg="#fff",
                              font="Sagoe 14",
-                             width=45)  # Set width to fit largest content
+                             width=45)
 
-    timeLabel = tk.Label(window,
+    timeLabel = tk.Label(inner_frame,
                          text=time,
                          bg="#323232",
                          fg="#fff",
                          font="Sagoe 15",
-                         width=4)  # Set width to match sub_frame_width
+                         width=4)
+    #solveLabel.place(relx=0, rely=0, anchor="nw")
+    #scrambleLabel.place(relx=0.5, rely=0, anchor="n")
+    #timeLabel.place(relx=1.0, rely=0, anchor="ne")
+    #labels.append(time_frame)
+
     labels.append(solveLabel)
     labels.append(scrambleLabel)
     labels.append(timeLabel)
@@ -408,9 +460,9 @@ window = tk.Tk()
 window.geometry("600x900")
 window.title("Cube scrambler")
 window.configure(background="#323232")
+window.update()
 init_session_dictionary()
-labels = []
-initialize_times_list()
+
 
 # Creating and placing labels for GUI
 menubar = tk.Menu(window, tearoff=0)
@@ -460,6 +512,13 @@ Ao12 = tk.Label(text="Ao12: "  + str(session_dictionary['Ao12']),
          background="#323232",
          foreground="#fff",
          font="Sagoe 15")
+container = tk.Frame(window, bg="#323232", borderwidth=0, highlightthickness=0)
+canvas = tk.Canvas(container, bg="#323232", borderwidth=0, highlightthickness=0)
+inner_frame = tk.Frame(canvas, bg="#323232")
+#inner_frame = tk.Frame(canvas, bg="blue", height=window.winfo_height(), width=window.winfo_width())
+#canvas.configure(scrollregion=canvas.bbox("all"))
+labels = []
+initialize_times_list()
 
 show_timer()
 
