@@ -386,16 +386,17 @@ def show_times(event=None):
     # Create canvas and inner frame
     canvas.pack(side="left", fill="both", expand=True)
     scrollbar = tk.Scrollbar(window, orient="vertical", command=canvas.yview)
-    scrollbar.pack(side="right", fill="y")
+    if (len(session_times) > 32):
+        scrollbar.pack(side="right", fill="y")
 
     inner_frame.update_idletasks()  # Ensure widgets inside inner_frame are properly sized
     canvas.create_window((0, 0), window=inner_frame, anchor="nw", width=window.winfo_width())
     #inner_frame.config(width=100)
     #inner_frame.place(relx=0, rely=0)
-
+    if (scrollbar.winfo_exists()):
     # Configure canvas scrolling
-    canvas.configure(yscrollcommand=scrollbar.set)
-    canvas.config(scrollregion=canvas.bbox("all"))
+        canvas.configure(yscrollcommand=scrollbar.set)
+        canvas.config(scrollregion=canvas.bbox("all"))
 
     # Place container
     container.place(relx=0, rely=0.025, relwidth=1, relheight=1, anchor="nw")
