@@ -312,6 +312,9 @@ def hide_times():
         solveLabel.place_forget()
         scrambleLabel.place_forget()    
         timeLabel.place_forget()
+        scrollbar.destroy()
+        canvas.pack_forget()
+        container.place_forget()
     except NameError:
         pass
     for item in labels:
@@ -341,7 +344,7 @@ def show_timer(event=None):
 
 
 def show_times(event=None):
-    global solveLabel, scrambleLabel, timeLabel
+    global solveLabel, scrambleLabel, timeLabel, scrollbar
 
     # Ensure widgets are hidden
     hide_stuff()
