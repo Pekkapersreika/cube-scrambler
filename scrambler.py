@@ -7,10 +7,10 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.ticker as ticker
 
-# Dictionary to keep track of line visibility in the plot
+# Dictionary to manage the visibility of lines in the graph
 line_visibility = {'Line2D(Time)': True, 'Line2D(Ao5)': False, 'Line2D(Ao12)': False}
 
-# Function to calculate the final time
+# Function to calculate final time and update session statistics
 def final_time(input_start, input_stop):
     finaltime = float(input_start) - float(input_stop)
     finaltime = float(round(finaltime, 2) / -1)
@@ -18,6 +18,8 @@ def final_time(input_start, input_stop):
     session_times.append(finaltime)
     StopWatch.config(text=result)
     scramble_dict["Time"] = result
+    
+    # Update session statistics
     if session_dictionary['Best'] == '-':
         session_dictionary['Best'] = result
     if session_dictionary['Worst'] == '-':
@@ -32,31 +34,26 @@ def final_time(input_start, input_stop):
     set_scramble()
     window.bind("<space>", start_time)
 
-# Function to start the timer
+# Function to start timing
 def start_time(event=None):
     global start
     start = time.time()
     StopWatch.config(text="Timing")
     window.bind("<space>", stop_time)
 
-# Function to stop the timer
+# Function to stop timing
 def stop_time(event=None):
     stop = time.time()
     final_time(start, stop)
 
-# Function to generate a random scramble
+# Function to get a new scramble
 def get_scramble():
     global scramble_dict
     scramble_dict = {"Solve": "", "Scramble": "", "Time": ""}
     scramble = ""
     scramblelist = []
     index = 0
-    movesList = ["U", "U'", "U2",
-                 "D", "D'", "D2",
-                 "R", "R'", "R2",
-                 "L", "L'", "L2",
-                 "F", "F'", "F2",
-                 "B", "B'", "B2"]
+    movesList = ["U", "U'", "U2", "D", "D'", "D2", "R", "R'", "R2", "L", "L'", "L2", "F", "F'", "F2", "B", "B'", "B2"]
     scrambleLength = 20
     while index < scrambleLength:
         scramblelist.append(random.choice(movesList))
@@ -75,11 +72,11 @@ def get_scramble():
     scramble_dict["Scramble"] = scramble
     return scramble
 
-# Function to set the scramble in the GUI
+# Function to set the scramble text
 def set_scramble():
     Scramble.config(text=get_scramble())
 
-# Function to create a CSV file for the session
+# Function to create the session CSV file if it doesn't exist
 def create_sessioncsv():
     create_session_dict = {
             'Solves': '-',
@@ -98,7 +95,7 @@ def create_sessioncsv():
         writer.writerow(create_session_dict)
     init_session_dictionary()
 
-# Function to create a CSV file for scrambles
+# Function to create the scramble CSV file if it doesn't exist
 def create_scramblecsv():
     field_names = ['Solve', 'Scramble', 'Time']
     with open(os.path.join(os.path.dirname(__file__), 'Scrambles.csv'), mode='w', encoding='utf-8', newline='') as file:
@@ -106,7 +103,7 @@ def create_scramblecsv():
         writer.writeheader()
     update_scrambles()
 
-# Function to load session dictionary from CSV
+# Function to initialize the session dictionary
 def init_session_dictionary():
     global session_dictionary
     session_dictionary = {}
@@ -118,7 +115,7 @@ def init_session_dictionary():
     else:
         create_sessioncsv()
 
-# Function to initialize times list from CSV
+# Function to initialize the session times list
 def initialize_times_list():
     global session_times
     session_times = []
@@ -131,7 +128,7 @@ def initialize_times_list():
     else:
         session_times = []
 
-# Function to update widgets with session information
+# Function to update the session statistics widgets
 def update_widgets():
     Solves.config(text="Solves: " + session_dictionary['Solves'])
     Best.config(text="Best: " + session_dictionary['Best'])
@@ -142,7 +139,7 @@ def update_widgets():
     Ao5.config(text="Ao5: " + str(session_dictionary['Ao5']))
     Ao12.config(text="Ao12: " + str(session_dictionary['Ao12']))
 
-# Function to update the scrambles CSV
+# Function to update the scramble CSV file
 def update_scrambles():
     field_names = list(scramble_dict.keys())
     if os.path.isfile(os.path.join(os.path.dirname(__file__), 'Scrambles.csv')):
@@ -154,7 +151,7 @@ def update_scrambles():
     else:
         create_scramblecsv()
 
-# Function to update the session CSV
+# Function to update the session CSV file
 def update_session():
     field_names = list(session_dictionary.keys())
     with open(os.path.join(os.path.dirname(__file__), 'Session.csv'), mode='a', encoding='utf-8', newline='') as file:
@@ -162,7 +159,7 @@ def update_session():
         writer.writerow(session_dictionary)
     window.destroy()
 
-# Function to check results and update session dictionary
+# Function to check and update session statistics
 def check_results(timeToCheck):
     if float(session_dictionary['Best']) > timeToCheck:
         session_dictionary['Best'] = str(timeToCheck)
@@ -172,7 +169,7 @@ def check_results(timeToCheck):
     calc_ao5()
     calc_ao12()
 
-# Function to calculate the session average
+# Function to calculate session average
 def calc_average():
     if len(session_times) > 3:
         result = 0
@@ -185,7 +182,7 @@ def calc_average():
         result = result / (len(session_times) - 2)
         session_dictionary['Session Avg'] = round(result, 2)
 
-# Function to calculate the Ao5
+# Function to calculate Ao5 (average of 5)
 def calc_ao5():
     if len(session_times) > 4:
         ao5List = session_times[(len(session_times) - 5)::]
@@ -202,7 +199,7 @@ def calc_ao5():
         if session_dictionary['Best Ao5'] == '-' or float(session_dictionary['Best Ao5']) > float(session_dictionary['Ao5']):
             session_dictionary['Best Ao5'] = round(result, 2)
 
-# Function to calculate the Ao12
+# Function to calculate Ao12 (average of 12)
 def calc_ao12():
     if len(session_times) > 11:
         ao12List = session_times[(len(session_times) - 12)::]
@@ -291,9 +288,8 @@ def plot_graph(event=None):
         line_visibility[line_name] = vis
         scatter.draw()
     scatter.mpl_connect('pick_event', onpick)
-    #statsmenu.delete("Graph")
 
-# Function to hide widgets
+# Function to hide unnecessary widgets
 def hide_stuff():
     Scramble.place_forget()
     StopWatch.place_forget()
@@ -307,6 +303,8 @@ def hide_stuff():
     Ao12.place_forget()
     hide_graph()
     hide_times()
+
+# Function to hide time-related widgets
 def hide_times():
     try:
         solveLabel.place_forget()
@@ -320,6 +318,7 @@ def hide_times():
     for item in labels:
         item.place_forget()
 
+# Function to hide the graph
 def hide_graph():
     global scatter
     window.geometry("600x900")
@@ -327,7 +326,8 @@ def hide_graph():
         scatter.get_tk_widget().destroy()
     except NameError:
         pass
-# Function to show widgets
+
+# Function to show the timer
 def show_timer(event=None):
     hide_stuff()
     Scramble.place(relx=0.5, rely=0.25, anchor="center")
@@ -342,13 +342,12 @@ def show_timer(event=None):
     Ao5.place(relx=0.9, rely=0.85, anchor="ne")
     Ao12.place(relx=0.9, rely=0.9, anchor="ne")
 
-
+# Function to show the time records
 def show_times(event=None):
     global solveLabel, scrambleLabel, timeLabel, scrollbar
 
-    # Ensure widgets are hidden
     hide_stuff()
-    # Create and place labels
+
     solveLabel = tk.Label(window,
                           text="Solve:",
                           bg="#323232",
@@ -370,7 +369,6 @@ def show_times(event=None):
                           font="Sagoe 15")
     timeLabel.place(relx=0.975, rely=0, anchor="ne")
 
-    # Place labels dynamically
     y = 0
     i = 0
     step = 1 / (len(session_times) + 0.75)
@@ -382,61 +380,31 @@ def show_times(event=None):
         labels[i + 2].place(relx=0.975, rely=y, anchor="ne")
         y += step
         i += 3
-    #while i < len(labels):
-    #    labels[i].pack(fill="x")
-    #    i += 1
 
-    # Create canvas and inner frame
     canvas.pack(side="left", fill="both", expand=True)
     scrollbar = tk.Scrollbar(window, orient="vertical", command=canvas.yview)
     if (len(session_times) > 32):
         scrollbar.pack(side="right", fill="y")
 
-    inner_frame.update_idletasks()  # Ensure widgets inside inner_frame are properly sized
+    inner_frame.update_idletasks()
     canvas.create_window((0, 0), window=inner_frame, anchor="nw", width=window.winfo_width())
-    #inner_frame.config(width=100)
-    #inner_frame.place(relx=0, rely=0)
+
     if (scrollbar.winfo_exists()):
-    # Configure canvas scrolling
         canvas.configure(yscrollcommand=scrollbar.set)
         canvas.config(scrollregion=canvas.bbox("all"))
 
-    # Place container
     container.place(relx=0, rely=0.025, relwidth=1, relheight=1, anchor="nw")
 
+# Function to create the time frames for records
 def time_frames(solve, scramble, time):
     global labels
-    time_frame = tk.Frame(inner_frame, height=28.125)
 
-    #solveLabel = tk.Label(time_frame,
-    #                      text=solve,
-    #                      bg="#323232",
-    #                      fg="#fff",
-    #                      font="Sagoe 15",
-    #                      width=3)
-#
-    ## Adjust the width of the scramble frame
-    #scrambleLabel = tk.Label(time_frame,
-    #                         text=scramble,
-    #                         bg="#323232",
-    #                         fg="#fff",
-    #                         font="Sagoe 14",
-    #                         width=45)
-#
-    #timeLabel = tk.Label(time_frame,
-    #                     text=time,
-    #                     bg="#323232",
-    #                     fg="#fff",
-    #                     font="Sagoe 15",
-    #                     width=4)
-    #
     solveLabel = tk.Label(inner_frame,
                           text=solve,
                           bg="#323232",
                           fg="#fff",
                           font="Sagoe 15")
 
-    # Adjust the width of the scramble frame
     scrambleLabel = tk.Label(inner_frame,
                              text=scramble,
                              bg="#323232",
@@ -450,16 +418,13 @@ def time_frames(solve, scramble, time):
                          fg="#fff",
                          font="Sagoe 15",
                          width=4)
-    #solveLabel.place(relx=0, rely=0, anchor="nw")
-    #scrambleLabel.place(relx=0.5, rely=0, anchor="n")
-    #timeLabel.place(relx=1.0, rely=0, anchor="ne")
-    #labels.append(time_frame)
+
 
     labels.append(solveLabel)
     labels.append(scrambleLabel)
     labels.append(timeLabel)
 
-# Initializing the Tkinter window
+# Initializing the main window and settings
 window = tk.Tk()
 window.geometry("600x900")
 window.title("Cube scrambler")
@@ -467,15 +432,15 @@ window.configure(background="#323232")
 window.update()
 init_session_dictionary()
 
-
-# Creating and placing labels for GUI
+# Menu bar setup
 menubar = tk.Menu(window, tearoff=0)
 menubar.add_command(label="Timer", command=show_timer)
 statsmenu = tk.Menu(menubar, tearoff=0)
 statsmenu.add_command(label="Times", command=show_times)
 statsmenu.add_command(label="Graph", command=plot_graph)
-#menubar.add_cascade(label="Timer", menu=timermenu)
 menubar.add_cascade(label="Statistics", menu=statsmenu)
+
+# Widget initialization
 Scramble = tk.Label(text=get_scramble(),
          background="#323232",
          foreground="#fff",
@@ -519,14 +484,13 @@ Ao12 = tk.Label(text="Ao12: "  + str(session_dictionary['Ao12']),
 container = tk.Frame(window, bg="#323232", borderwidth=0, highlightthickness=0)
 canvas = tk.Canvas(container, bg="#323232", borderwidth=0, highlightthickness=0)
 inner_frame = tk.Frame(canvas, bg="#323232")
-#inner_frame = tk.Frame(canvas, bg="blue", height=window.winfo_height(), width=window.winfo_width())
-#canvas.configure(scrollregion=canvas.bbox("all"))
 labels = []
-initialize_times_list()
 
+# Initializing times list and showing timer
+initialize_times_list()
 show_timer()
 
-# Binding the window closure to update_session function
+# Protocol to handle window closure
 window.protocol("WM_DELETE_WINDOW", update_session)
 window.config(menu=menubar)
-window.mainloop()  # Starting the Tkinter event loop
+window.mainloop()
